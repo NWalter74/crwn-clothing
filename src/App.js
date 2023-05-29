@@ -1,41 +1,29 @@
-import Directory from "./components/directory/directory.component";
+import { Routes, Route } from "react-router-dom";
+import Home from "./routes/home/home.component";
+import Navigation from "./routes/navigation/navigation.component";
+import SignIn from "./routes/sign-in/sign-in.component";
+
+const Shop = () => {
+  return(
+    <div>
+        I am the shop page
+    </div>
+  );
+};
 
 const App = () => {
-
-  //An array which contains objects
-  //We only have values in this object which change in the different containers. So we don't need subtitle "Shop now"
-  //because it is the same in every container
-  const categories = [
-      {
-        "id": 1,
-        "title": "hats",
-        "imageUrl": "https://i.ibb.co/cvpntL1/hats.png"
-      },
-      {
-        "id": 2,
-        "title": "jackets",
-        "imageUrl": "https://i.ibb.co/px2tCc3/jackets.png"
-      },
-      {
-        "id": 3,
-        "title": "sneakers",
-        "imageUrl": "https://i.ibb.co/0jqHpnp/sneakers.png"
-      },
-      {
-        "id": 4,
-        "title": "womens",
-        "imageUrl": "https://i.ibb.co/GCCdy8t/womens.png"
-      },
-      {
-        "id": 5,
-        "title": "mens",
-        "imageUrl": "https://i.ibb.co/R70vBrQ/men.png"
-      },    
-  ];
-
   return (
-    <Directory categories={categories}/>
+    //Render specifik components based on the url. This only can happen if the <App/> is nested inside
+    //the <BrowserRouter/> component (se it in index.js)
+    <Routes>
+      <Route path="/" element={<Navigation/>}>
+        {/* Index says: if the url ends with / render always the children Route with index */}
+        <Route index element={<Home/>}/>
+        <Route path="/shop" element={<Shop/>}/>
+        <Route path="/signIn" element={<SignIn/>}/>
+      </Route>
+    </Routes>
   );
-}
+};
 
 export default App;
