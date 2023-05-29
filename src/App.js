@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./routes/home/home.component";
 import Navigation from "./routes/navigation/navigation.component";
-import SignIn from "./routes/sign-in/sign-in.component";
+import Authentication from "./routes/authentication/authentication.component";
 
 const Shop = () => {
   return(
@@ -19,8 +19,8 @@ const App = () => {
       <Route path="/" element={<Navigation/>}>
         {/* Index says: if the url ends with / render always the children Route with index */}
         <Route index element={<Home/>}/>
-        <Route path="/shop" element={<Shop/>}/>
-        <Route path="/signIn" element={<SignIn/>}/>
+        <Route path="shop" element={<Shop/>}/>
+        <Route path="auth" element={<Authentication/>}/>
       </Route>
     </Routes>
   );

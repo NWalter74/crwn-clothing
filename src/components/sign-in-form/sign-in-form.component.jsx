@@ -1,29 +1,32 @@
 import {useState} from "react";
-import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth } from "../../utils/firebase/firebase.utils";
+import {signInWithGooglePopup, createUserDocumentFromAuth, signInAuthUserWithEmailAndPassword } from "../../utils/firebase/firebase.utils";
 import FormInput from "../form-input/form-input.component";
 import Button from "../button/button.component";
-import "./sign-up-form.styles.scss";
+import "./sign-in-form.styles.scss";
 
 //object with the initialized values for the form fields
 //this object is the value for formFields
 const defaultFormFields = {
-    displayName: "",
     email: "",
     password: "",
-    confirmPassword: ""
 };
 
-const SignUpForm = () => {
+const SignInForm = () => {
     const [formFields, setFormFields] = useState(defaultFormFields);
     //here we destructure of the values. the reason is that we are going to use these
     //values somewhere in the code
-    const {displayName, email, password, confirmPassword} = formFields;
+    const {email, password} = formFields;
 
     console.log(formFields);
 
     const resetFormFields = () => {
         setFormFields(defaultFormFields);
-    }
+    };
+
+    const signInWithGoogle = async () => {
+        const {user} = await signInWithGooglePopup();
+        await createUserDocumentFromAuth(user);
+    };
 
     //Figure out what happens whenever these values change so that I can update my form fields
 
@@ -31,28 +34,21 @@ const SignUpForm = () => {
         //we don't want default values
         event.preventDefault();
 
-        //first step: check if password == confirmPassword
-        if(password !== confirmPassword){
-            //print it out for the user
-            alert("Passwords do not match");
-            //then just exit
-            return;
-        }
-
         //step two: create user
         try{
-            //here we get a user
-            const {user} = await createAuthUserWithEmailAndPassword(email, password);
-            // console.log(response); // response now is {user}
-
-            //when we get back we pass user and the object with the displayName value to createUserDocumentFromAuth
-            await createUserDocumentFromAuth(user, {displayName});
+            const response = await signInAuthUserWithEmailAndPassword(email, password);
+            console.log(response);
             resetFormFields();
         }catch(error){
-            if(error.code == "auth/email-lready-in-use"){
-                alert("Cannot create user, email already in use");
-            }else{
-                console.log("User creation encountered an error", error);
+            switch(error.code){
+                case "auth/wrong-password":
+                    alert("Incorrect password for email!");
+                    break;
+                case "auth/user-noy-found":
+                    alert("No user associated with this email");
+                    break;
+                default:
+                    console.log(error);
             }
         }
     };
@@ -68,20 +64,11 @@ const SignUpForm = () => {
        
     return (
         <div className="sign-up-container">
-            <h2>Don't have an account?</h2>
-            <span>Sign up with your email and password</span>
+            <h2>Already have an account?</h2>
+            <span>Sign in with your email and password</span>
             {/* submithandler runs a callback whenever you submit a form. it only runs when all validations are passing*/}
             {/* name = same name as object in defaultFormFields */}
             <form onSubmit={handleSubmit}>
-                <FormInput
-                    label="Display Name"
-                    type="text" 
-                    required 
-                    onChange={handleChange} 
-                    name="displayName" 
-                    value={displayName}
-                />
-
                 <FormInput
                     label="Email"
                     type="email" 
@@ -100,19 +87,16 @@ const SignUpForm = () => {
                     value={password}
                 />
 
-                <FormInput
-                    label="Confirm Password"
-                    type="password" 
-                    required 
-                    onChange={handleChange} 
-                    name="confirmPassword" 
-                    value={confirmPassword}
-                />
-                {/* when the button is klicked run the onSubmit callback */}
-                <Button type="submit">Sign Up</Button>
+                <div className="buttons-container">
+                    {/* when the button is klicked run the onSubmit callback */}
+                    <Button type="submit">Sign In</Button>
+                    {/* a button within a form is by default of type submit. because we don't want type submit for the google button
+                    we have to make it of type button */}
+                    <Button type="button" buttonType="google" onClick={signInWithGoogle}>Google sign in</Button>
+                </div>
             </form>
         </div>
     );
 };
 
-export default SignUpForm;
+export default SignInForm;
